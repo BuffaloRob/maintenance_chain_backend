@@ -1,4 +1,5 @@
 class ItemsController < ApplicationController
+  before_action :doorkeeper_authorize!, except: [:index, :show]
   before_action :set_item, only: [:show, :update, :destroy]
 
   # GET /items
