@@ -4,19 +4,30 @@ Doorkeeper.configure do
 
   # This block will be called to check whether the resource owner is authenticated or not.
   resource_owner_authenticator do
-    raise "Please configure doorkeeper resource_owner_authenticator block located in #{__FILE__}"
-    # Put your resource owner authentication logic here.
-    # Example implementation:
-    #   User.find_by_id(session[:user_id]) || redirect_to(new_user_session_url)
+     current_user || redirect_to(new_user_session_url)
+  end
+
+  resource_owner_authenticator do
+    user_id = session["warden.user.user.key"][0][0] rescue nil
+    User.find_by_id(user_id) || begin
+      session['user_return_to'] = request.url
+      redirect_to(new_user_session_url)
+    end
+  end
+
+  force_ssl_in_redirect_uri false
+
+  skip_authorization do
+    true
   end
 
    # In this flow, a token is requested in exchange for the resource owner credentials (username and password)
-  resource_owner_from_credentials do |routes|
-    user = User.find_for_database_authentication(:username => params[:username])
-    if user && user.valid_for_authentication? { user.valid_password?(params[:password]) }
-      user
-    end
-  end
+  # resource_owner_from_credentials do |routes|
+  #   user = User.find_for_database_authentication(:email => params[:username])
+  #   if user && user.valid_for_authentication? { user.valid_password?(params[:password]) }
+  #     user
+  #   end
+  # end
 
   # If you didn't skip applications controller from Doorkeeper routes in your application routes.rb
   # file then you need to declare this block in order to restrict access to the web interface for
@@ -190,7 +201,7 @@ Doorkeeper.configure do
   #   http://tools.ietf.org/html/rfc6819#section-4.4.3
   #
   # grant_flows %w[authorization_code client_credentials]
-  grant_flows %w(password)
+  # grant_flows %w(password)
 
   # Hook into the strategies' request & response life-cycle in case your
   # application needs advanced customization or logging:
@@ -224,9 +235,6 @@ Doorkeeper.configure do
   # skip_authorization do |resource_owner, client|
   #   client.superapp? or resource_owner.admin?
   # end
-  skip_authorization do
-    true
-  end
 
   # WWW-Authenticate Realm (default "Doorkeeper").
   #
