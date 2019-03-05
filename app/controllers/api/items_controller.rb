@@ -18,7 +18,7 @@ class Api::ItemsController < ApplicationController
     @item = Item.new(item_params)
 
     if @item.save
-      render json: @item, status: :created, location: @item
+      render json: @item#, status: :created, location: @item
     else
       render json: @item.errors, status: :unprocessable_entity
     end
