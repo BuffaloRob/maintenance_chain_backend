@@ -4,8 +4,8 @@ class Api::ItemsController < ApplicationController
 
   # GET /items
   def index
-    @items = Item.all
-
+    # @items = Item.all
+    @items = current_user.items
     render json: @items
   end
 
