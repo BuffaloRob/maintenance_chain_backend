@@ -1,5 +1,6 @@
 class Api::UsersController < ApplicationController
   before_action :set_user, only: [:show, :update, :destroy]
+  before_action :authenticate_user, except: :create
 
   def find
     @user = User.find_by(email: params[:user][:email])
